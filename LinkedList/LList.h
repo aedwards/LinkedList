@@ -77,44 +77,45 @@ public:
 	//Delete a node from the list based on the list item supplied by the user
 	void Delete(int data) {
 
-		Node *tempNode = head;	//initialize a pointer to the head node as a starting point
-
+		Node *currentNode = head;	//initialize a pointer to the head node as a starting point
+		Node *previousNode = NULL;
+		
 		//no nodes
-		if(tempNode == NULL) {
+		if(currentNode == NULL) {
 			cout << "List is empty." << endl;
 			return;
 		}
-		
-		//trying to delete a non-existent node
-		if(tempNode->Next()->Data() != data) {
-			cout << "Invalid search: Item does not exit. Returning original, unaltered list." << endl;
+		//Deleting the first node
+		if(currentNode->Data() == data) {
+			previousNode = currentNode;		//keep track of the previous node
+			currentNode = currentNode->Next();	//move the current node to the next node
+			head = currentNode;		//update the head value.
+			delete previousNode;	//finally delete the previousNode since it will not be linked to anything.
 			return;
 		}
-
-		//last node of the list
-		if(tempNode->Next() == NULL) {
-			delete tempNode;
-			tempNode = nullptr;
-		}
 		else {
-			//parse through the nodes
-			Node* prev;	//keeps track of the previous node
-
-			//traverse through the nodes until we get a match
-			while(tempNode != NULL) {
-				if(tempNode->Data() == data) {
-					break;	
+			///If not at the first node, traverse the list until found.
+			while(currentNode->Next() != NULL) {
+				if(currentNode->Data() == data) {   //if found, break out of the while loop.
+					break;
 				}
-				prev = tempNode;
-				tempNode = tempNode->Next();
+				previousNode = currentNode;		//record the current node as the previous node
+				currentNode = currentNode->Next();	//move the current node forward by one to facilitate list traversal.
 			}
 
-			//adjust the pointers, if matching data is found
-			prev->SetNext(tempNode->Next());
+			/*If the traversal from the while loop still fails to find anything, return an error message
+			and break completely out of the else block. If data is found, the statement in the if evaluation will be false. 
+			and this block will be skipped.*/
+			if(currentNode->Data() != data) {
+				cout << "Invalid search: Item does not exit. Returning original, unaltered list." << endl;
+				return;
+			}
 
-			//delete the current node
-			tempNode = nullptr;
+			/*Set the previous node to point to the node after the node we're trying to delete.*/
+			previousNode->SetNext(currentNode->Next());
+			delete currentNode;		//finally delete the node from which we have removed all links.
 		}
+		
 	}
 	
 
@@ -129,7 +130,36 @@ public:
 		return count;
 	}
 
+	//Iterative function to reverse a list
+	void reverse() {
 
+		Node* currentLink = head;
+		Node* nextLink = NULL;
+		Node* prevLink = NULL;
+
+		while(currentLink != NULL){ 
+			head = currentLink;
+			nextLink = currentLink->Next();
+			currentLink->SetNext(prevLink);
+			prevLink = currentLink;
+			currentLink = nextLink;
+		}
+	}
+
+	Node* Head() {
+		Node* currentNode = head;
+		return currentNode;
+	}
+
+	Node* Tail() {
+		Node* tail = head;
+
+		while(tail->Next() != NULL) {
+			tail = tail->Next();
+		}
+		return tail;
+	}
+	
 	
 	//Print the contents of the list
 	void Print() {
@@ -158,8 +188,8 @@ public:
 				cout << " --> ";
 				temp = temp->Next();
 			}
+			cout << "NULL" << endl << endl;
 		}
-		cout << "NULL" << endl << endl;
 
 	}
 
